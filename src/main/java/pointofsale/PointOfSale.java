@@ -14,15 +14,25 @@ class ModemUtils {
   }
 }
 
+class NoMoneyException extends Exception {}
+
 public class PointOfSale {
   public static boolean useModem = false;
 
   public static void collectCCPayment()
-      throws ModemDidNotConnectException, IOException {
+//      throws ModemDidNotConnectException, IOException {
+      // exceptions should be appropriate to the level of abstration
+      // of this API (note that infrastructure is pervasive, and
+      // almost always ends up needing a human to help
+  throws IOException /* infrastructure */, NoMoneyException {
     // process payment
     if (useModem) {
       // retry three times
-      ModemUtils.dialModem("800-PAY-MEXX");
+      try {
+        ModemUtils.dialModem("800-PAY-MEXX");
+      } catch (ModemDidNotConnectException e) {
+        throw new IOException(e);
+      }
     } else {
       // retry??
       Socket s = new Socket("127.0.0.1", 9000);
@@ -45,10 +55,12 @@ public class PointOfSale {
       collectCCPayment();
     } catch (IOException
           /* | FileNotFoundException*/
-             | ModemDidNotConnectException e) {
+             /*| ModemDidNotConnectException*/ e) {
       // common code for "couldn't connect to server"
       // siblings only, not parent/child
-    }
+    } catch (NoMoneyException nme) {
+      // this expects different handling
+
       // Why don't we like this, for unifying the handling?
 //    } catch (Exception e) // Catches almost EVERYTHING, including NPE {
       // ask for human intervention
