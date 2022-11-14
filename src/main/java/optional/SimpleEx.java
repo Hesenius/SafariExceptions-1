@@ -1,10 +1,11 @@
 package optional;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class SimpleEx {
   public static String getFirstName() {
-    return "Freddy";
+    return "Fred";
   }
 
 //  public static String [] getFirstName() {
@@ -32,5 +33,13 @@ public class SimpleEx {
         }
       }
     }
+
+    System.out.println("-------------");
+    Optional<Map<String, String>> namesOpt = Optional.of(names);
+    namesOpt
+        .map(m -> m.get(first))
+        .map(ln -> ln.toUpperCase())
+        .map(lnu -> "Dear " + lnu)
+        .ifPresent(System.out::println);
   }
 }
